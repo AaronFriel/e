@@ -81,7 +81,7 @@ lockfree_fifo<T> :: lockfree_fifo()
 template <typename T>
 lockfree_fifo<T> :: ~lockfree_fifo() throw ()
 {
-    std::auto_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
+    std::unique_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
 
     while (m_head)
     {
@@ -95,10 +95,10 @@ template <typename T>
 void
 lockfree_fifo<T> :: push(T& val)
 {
-    std::auto_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
+    std::unique_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
     node* tail;
     node* next;
-    std::auto_ptr<node> n(new node(NULL, val));
+    std::unique_ptr<node> n(new node(NULL, val));
 
     while (true)
     {
@@ -142,7 +142,7 @@ template <typename T>
 bool
 lockfree_fifo<T> :: pop(T* val)
 {
-    std::auto_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
+    std::unique_ptr<typename hazard_ptrs<node, 2>::hazard_ptr> hptr = m_hazards.get();
     node* head;
     node* tail;
     node* next;

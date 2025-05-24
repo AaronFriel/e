@@ -43,15 +43,15 @@ namespace
 TEST(BufferTest, CtorAndDtor)
 {
     // Create a buffer without any size
-    std::auto_ptr<e::buffer> a(e::buffer::create(0));
+    std::unique_ptr<e::buffer> a(e::buffer::create(0));
     ASSERT_EQ(0U, a->size());
     ASSERT_EQ(0U, a->capacity());
     // Create a buffer which can pack 2 bytes
-    std::auto_ptr<e::buffer> b(e::buffer::create(2));
+    std::unique_ptr<e::buffer> b(e::buffer::create(2));
     ASSERT_EQ(0U, b->size());
     ASSERT_EQ(2U, b->capacity());
     // Create a buffer with the three bytes "XYZ"
-    std::auto_ptr<e::buffer> c(e::buffer::create("xyz", 3));
+    std::unique_ptr<e::buffer> c(e::buffer::create("xyz", 3));
     ASSERT_EQ(3U, c->size());
     ASSERT_EQ(3U, c->capacity());
 }
@@ -62,8 +62,8 @@ TEST(BufferTest, PackBuffer)
     uint32_t b = 0x8badf00d;
     uint16_t c = 0xface;
     uint8_t d = '!';
-    std::auto_ptr<e::buffer> buf(e::buffer::create("the buffer", 10));
-    std::auto_ptr<e::buffer> packed(e::buffer::create(34));
+    std::unique_ptr<e::buffer> buf(e::buffer::create("the buffer", 10));
+    std::unique_ptr<e::buffer> packed(e::buffer::create(34));
 
     packed->pack() << a << b << c << d << buf->as_slice();
     ASSERT_EQ(26U, packed->size());
@@ -93,7 +93,7 @@ TEST(BufferTest, UnpackBuffer)
     uint16_t c;
     uint8_t d;
     e::slice sl;
-    std::auto_ptr<e::buffer> packed(e::buffer::create(
+    std::unique_ptr<e::buffer> packed(e::buffer::create(
                 "\xde\xad\xbe\xef\xca\xfe\xba\xbe"
                 "\x8b\xad\xf0\x0d"
                 "\xfa\xce"
@@ -111,7 +111,7 @@ TEST(BufferTest, UnpackBuffer)
 
 TEST(BufferTest, UnpackErrors)
 {
-    std::auto_ptr<e::buffer> buf(e::buffer::create("\x8b\xad\xf0\x0d" "\xfa\xce", 6));
+    std::unique_ptr<e::buffer> buf(e::buffer::create("\x8b\xad\xf0\x0d" "\xfa\xce", 6));
     uint32_t a;
     e::unpacker up = buf->unpack() >> a;
     ASSERT_EQ(0x8badf00d, a);
@@ -135,8 +135,8 @@ TEST(BufferTest, UnpackErrors)
 
 TEST(BufferTest, Hex)
 {
-    std::auto_ptr<e::buffer> buf1(e::buffer::create("\xde\xad\xbe\xef", 4));
-    std::auto_ptr<e::buffer> buf2(e::buffer::create("\x00\xff\x0f\xf0", 4));
+    std::unique_ptr<e::buffer> buf1(e::buffer::create("\xde\xad\xbe\xef", 4));
+    std::unique_ptr<e::buffer> buf2(e::buffer::create("\x00\xff\x0f\xf0", 4));
 
     ASSERT_EQ("deadbeef", buf1->hex());
     ASSERT_EQ("00ff0ff0", buf2->hex());
@@ -144,7 +144,7 @@ TEST(BufferTest, Hex)
 
 TEST(BufferTest, VectorPack)
 {
-    std::auto_ptr<e::buffer> buf(e::buffer::create(12));
+    std::unique_ptr<e::buffer> buf(e::buffer::create(12));
     std::vector<uint16_t> vector;
     vector.push_back(0xdead);
     vector.push_back(0xbeef);
@@ -159,7 +159,7 @@ TEST(BufferTest, VectorPack)
 
 TEST(BufferTest, VectorUnpack)
 {
-    std::auto_ptr<e::buffer> buf(e::buffer::create("\x04"
+    std::unique_ptr<e::buffer> buf(e::buffer::create("\x04"
                                                    "\xde\xad\xbe\xef"
                                                    "\xca\xfe\xba\xbe", 9));
     std::vector<uint16_t> vector;
@@ -173,7 +173,7 @@ TEST(BufferTest, VectorUnpack)
 
 TEST(BufferTest, VectorUnpackFail)
 {
-    std::auto_ptr<e::buffer> buf(e::buffer::create("\x04"
+    std::unique_ptr<e::buffer> buf(e::buffer::create("\x04"
                                                    "\xde\xad\xbe\xef"
                                                    "\xca\xfe\xba\xbe", 9));
     std::vector<uint32_t> vector_bad;

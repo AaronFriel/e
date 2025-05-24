@@ -68,7 +68,7 @@ class lockfree_hash_map
         };
 
         class node;
-        typedef std::auto_ptr<typename hazard_ptrs<node, 3>::hazard_ptr> hazard_ptr;
+        typedef std::unique_ptr<typename hazard_ptrs<node, 3>::hazard_ptr> hazard_ptr;
 
     private:
         lockfree_hash_map(const lockfree_hash_map&);
@@ -235,7 +235,7 @@ lockfree_hash_map<K, V, H> :: insert(const K& k, const V& v)
         }
 
         assert(is_clean(cur));
-        std::auto_ptr<node> nn(new node(hash, k, v, cur));
+        std::unique_ptr<node> nn(new node(hash, k, v, cur));
         node* inserted = e::bitsteal::set(nn.get(), VALID);
 
         if (cas(prev, cur, inserted))
