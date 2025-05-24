@@ -66,7 +66,7 @@ class hazard_ptrs
 
     public:
         void force_scan();
-        std::auto_ptr<hazard_ptr> get();
+        std::unique_ptr<hazard_ptr> get();
 
     private:
         class hazard_rec;
@@ -201,7 +201,7 @@ hazard_ptrs<T, P, S> :: force_scan()
 }
 
 template <typename T, size_t P, typename S>
-inline std::auto_ptr<typename e::hazard_ptrs<T, P, S>::hazard_ptr>
+inline std::unique_ptr<typename e::hazard_ptrs<T, P, S>::hazard_ptr>
 hazard_ptrs<T, P, S> :: get()
 {
     using namespace e::atomic;
@@ -212,7 +212,7 @@ hazard_ptrs<T, P, S> :: get()
         if (exchange_32_nobarrier(&rec->taslock, 1) == 0)
         {
             e::guard g = e::makeguard(store_32_nobarrier, &rec->taslock, 0);
-            std::auto_ptr<hazard_ptr> ret(new hazard_ptr(rec));
+            std::unique_ptr<hazard_ptr> ret(new hazard_ptr(rec));
             g.dismiss();
             return ret;
         }
@@ -220,7 +220,7 @@ hazard_ptrs<T, P, S> :: get()
         rec = load_ptr_acquire(&rec->next);
     }
 
-    std::auto_ptr<hazard_rec> newrec(new hazard_rec(*this));
+    std::unique_ptr<hazard_rec> newrec(new hazard_rec(*this));
     store_32_nobarrier(&newrec->taslock, 1);
     e::guard g = e::makeguard(store_32_nobarrier, &rec->taslock, 0);
     hazard_rec* oldhead;
@@ -232,7 +232,7 @@ hazard_ptrs<T, P, S> :: get()
     }
     while (compare_and_swap_ptr_release(&m_recs, oldhead, newrec.get()) != oldhead);
 
-    std::auto_ptr<hazard_ptr> ret(new hazard_ptr(newrec.get()));
+    std::unique_ptr<hazard_ptr> ret(new hazard_ptr(newrec.get()));
     newrec.release();
     g.dismiss();
     return ret;

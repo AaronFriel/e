@@ -81,7 +81,7 @@ buffer :: cmp(const char* buf, size_t sz) const
 buffer*
 buffer :: copy() const
 {
-    std::auto_ptr<buffer> ret(create(m_cap));
+    std::unique_ptr<buffer> ret(create(m_cap));
     ret->m_cap = m_cap;
     ret->m_size = m_size;
     memmove(ret->m_data, m_data, m_cap);
